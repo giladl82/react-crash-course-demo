@@ -1,5 +1,6 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
+import {withBorder} from '../HOC';
 
 const Repo = (props) => {
   const avatarStyle = { width: '50px' };
@@ -22,4 +23,4 @@ Repo.propTypes = {
   }).isRequired
 }
 
-export default Repo;
+export default withBorder("green","blue")(Repo);

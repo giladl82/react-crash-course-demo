@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
 import logo from './logo.svg';
 import './App.css';
+
+import { loadOwner } from '../state/owner/actions';
+import { loadRepos } from '../state/repos/actions';
 
 import Search from '../Search';
 import Owner from '../Owner';
@@ -9,30 +15,19 @@ import Repo from '../Repo';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      owner: null,
-      repos: null,
-    }
   }
   handleSearch = (name) => {
-    fetch(`https://api.github.com/users/${name}`)
-      .then(response => response.json())
-      .then(json => this.setState({
-        owner: json
-      }));
+    this.props.loadOwner(name);
   }
 
   handleLoadReposClick = (event) => {
     event.preventDefault();
 
-    fetch(this.state.owner.repos_url)
-      .then(response => response.json())
-      .then(json => this.setState({
-        repos: json
-      }));
+    this.props.loadRepos(this.props.owner.repos_url);
   }
 
   render() {
+    const { owner, repos } = this.props;
     return (
       <div className="App">
         <header className="App-header">
@@ -41,12 +36,22 @@ class App extends Component {
         </header>
         <div className='App-body'>
           <Search onSearch={this.handleSearch} />
-          {this.state.owner && <Owner data={this.state.owner} onClick={this.handleLoadReposClick} />}
-          {this.state.repos && this.state.repos.map(repo => <Repo  key={repo.id} data={repo} />)}
+          {owner && <Owner data={owner} onClick={this.handleLoadReposClick} />}
+          {repos && repos.map(repo => <Repo key={repo.id} data={repo} />)}
         </div>
       </div>
     );
   }
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  owner: state.owner,
+  repos: state.repos
+})
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  loadOwner,
+  loadRepos
+}, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
